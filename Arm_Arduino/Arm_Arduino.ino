@@ -8,12 +8,11 @@ short mask = 0b0000000000000001;
 bool b = 1;
 uint16_t miso;
 uint16_t miso2;
-uint8_t misoa;
-uint8_t misob;
+
 uint8_t misoa2;
 uint8_t misob2;
 int16_t count = 0;
-int16_t reversed;
+uint16_t reversed;
 // the setup function runs once when you press reset or power the board
 void setup() {
   // initialize digital pin LED_BUILTIN as an output.
@@ -34,7 +33,7 @@ void setup() {
     pinMode(20,OUTPUT);
     pinMode(21,OUTPUT);*/
 
-  SerialUSB.begin(115200);
+  SerialUSB.begin(2000000);
   SPI.begin();
   pinMode( ss1, OUTPUT );
   pinMode( ss2, OUTPUT );
@@ -46,31 +45,11 @@ void setup() {
 // the loop function runs over and over again forever
 void loop() {
   
-  digitalWrite( ss1, LOW );
-
-  SPI.beginTransaction( SPISettings( 12000000, MSBFIRST, SPI_MODE0 ) );
-  {
-  misoa = SPI.transfer(count >> 8);
-  misob = SPI.transfer(count);
-  digitalWrite( ss1, HIGH );
-  }
-  SPI.endTransaction();
-  
-  miso = (misoa << 8) + misob;
+  miso = spiTransfer(ss1, count);
 
   reversed = -count;
 
-  digitalWrite( ss2, LOW );
-
-  SPI.beginTransaction( SPISettings( 12000000, MSBFIRST, SPI_MODE0 ) );
-  {
-  misoa2 = SPI.transfer(reversed >> 8);
-  misob2 = SPI.transfer(reversed);
-  digitalWrite( ss2, HIGH );
-  }
-  SPI.endTransaction();
-  
-  miso2 = (misoa2 << 8) + misob2;
+  miso2 = spiTransfer(ss2, reversed);
   
   SerialUSB.println("msg");
   SerialUSB.println(count);
@@ -83,7 +62,24 @@ void loop() {
   {
     count = 0;
   }
-  //delay(1);
+}
+
+uint16_t spiTransfer( int ss, int16_t Tx)
+{
+  uint8_t MISOl;
+  uint8_t MISOu;
+
+  digitalWrite( ss, LOW );
+
+  SPI.beginTransaction( SPISettings( 12000000, MSBFIRST, SPI_MODE0 ) );
+  {
+  MISOu = SPI.transfer(Tx >> 8);
+  MISOl = SPI.transfer(Tx);
+  digitalWrite( ss, HIGH );
+  }
+  SPI.endTransaction();
+
+  return ((MISOu << 8) + MISOl);
 }
 
 void parallel_output(short data)
