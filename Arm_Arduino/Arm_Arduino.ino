@@ -12,8 +12,8 @@ uint8_t misoa;
 uint8_t misob;
 uint8_t misoa2;
 uint8_t misob2;
-uint16_t count = 0;
-uint16_t reversed;
+int16_t count = 0;
+int16_t reversed;
 // the setup function runs once when you press reset or power the board
 void setup() {
   // initialize digital pin LED_BUILTIN as an output.
@@ -48,7 +48,7 @@ void loop() {
   
   digitalWrite( ss1, LOW );
 
-  SPI.beginTransaction( SPISettings( 2000000, MSBFIRST, SPI_MODE0 ) );
+  SPI.beginTransaction( SPISettings( 12000000, MSBFIRST, SPI_MODE0 ) );
   {
   misoa = SPI.transfer(count >> 8);
   misob = SPI.transfer(count);
@@ -58,11 +58,11 @@ void loop() {
   
   miso = (misoa << 8) + misob;
 
-  reversed = 15-count;
+  reversed = -count;
 
   digitalWrite( ss2, LOW );
 
-  SPI.beginTransaction( SPISettings( 2000000, MSBFIRST, SPI_MODE0 ) );
+  SPI.beginTransaction( SPISettings( 12000000, MSBFIRST, SPI_MODE0 ) );
   {
   misoa2 = SPI.transfer(reversed >> 8);
   misob2 = SPI.transfer(reversed);
@@ -83,7 +83,7 @@ void loop() {
   {
     count = 0;
   }
-  delay(100);
+  //delay(1);
 }
 
 void parallel_output(short data)
@@ -105,5 +105,3 @@ void parallel_output(short data)
   digitalWrite(20, data & mask << 14);
   digitalWrite(21, data & mask << 15);
 }
-
-
