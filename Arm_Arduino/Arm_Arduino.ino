@@ -6,15 +6,20 @@
 
 short mask = 0b0000000000000001;
 bool b = 1;
-uint16_t position;
+
 uint16_t miso2;
 
 uint8_t misoa2;
 uint8_t misob2;
-int16_t velocity = 0;
 
-int set = 910;
-int speed;
+uint16_t position;
+int16_t velocity = 0;
+int seta = 910;
+
+uint16_t position2;
+int16_t velocity2 = 0;
+int16_t speed2;
+int set2 = 15000;
 
 // the setup function runs once when you press reset or power the board
 void setup() {
@@ -48,34 +53,63 @@ void setup() {
 // the loop function runs over and over again forever
 void loop() {
 
-  position = spiTransfer(ss1, velocity);
+  //linear_actuator(seta);
 
   
-  speed = constrain(153.55*(abs(set-position))+1500,0,4095);
+  position2 = spiTransfer(ss2, velocity2);
+
+  speed2 = constrain(78.9 * (abs(set2 - position2)) + 255, 0, 4095);
+  if (position2 < set2)
+  {
+    velocity2 = speed2;
+  }
+  else if (position2 > set2)
+  {
+    velocity2 = -speed2;
+  }
+  else
+  {
+    velocity2 = 0;
+  }
+
+  SerialUSB.print("msg2: \t");
+  SerialUSB.print(velocity2);
+  SerialUSB.print("\t");
+  SerialUSB.println(position2);
+
+}
+
+void linear_actuator(int set)
+{
+  int16_t speed;
+
+  position = spiTransfer(ss1, velocity);
+
+  speed = constrain(153.55 * (abs(set - position)) + 1024, 0, 4095);
   if (position < set)
   {
     velocity = speed;
   }
   else if (position > set)
-   {
+  {
     velocity = -speed;
-   }
-   else
-   {
+  }
+  else
+  {
     velocity = 0;
-   }
-  
+  }
+
   SerialUSB.print("msg: \t");
   SerialUSB.print(velocity);
   SerialUSB.print("\t");
   SerialUSB.println(position);
 
-  if (set == 1700 & position == 1700){
-    set = 100;}
-  if (set == 100 & position == 100){
-    set = 1700;}
-  
-  
+  if (set == 1700 & position == 1700) {
+    set = 100;
+  }
+  if (set == 100 & position == 100) {
+    set = 1700;
+  }
 }
 
 uint16_t spiTransfer( int ss, int16_t Tx)
