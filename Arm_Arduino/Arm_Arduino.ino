@@ -102,7 +102,7 @@ void setup() {
     nh.initNode();
     nh.subscribe(arm_sub);
   */
-  SerialUSB.begin(9600);
+  SerialUSB.begin(57600);
   SPI.begin();
   pinMode( ssBase, OUTPUT );
   pinMode( ssActuator_Lower, OUTPUT );
@@ -167,24 +167,24 @@ void spinOnce()
 {
   while (SerialUSB.available() > 0) {
 
-    int n1 = 4095.0 * (SerialUSB.parseInt());
-    int n2 = 4095.0 * (SerialUSB.parseInt());
-    int n3 = 4095.0 * (SerialUSB.parseInt());
-    int n4 = 4095.0 * (SerialUSB.parseInt());
-    int n5 = 4095.0 * (SerialUSB.parseInt());
-    int n6 = 4095.0 * (SerialUSB.parseInt());
-    int n7 = 4095.0 * (SerialUSB.parseInt());
-    int n8 = 4095.0 * (SerialUSB.parseInt());
+    int n1 = (SerialUSB.parseInt());
+    int n2 = (SerialUSB.parseInt());
+    int n3 = (SerialUSB.parseInt());
+    int n4 = (SerialUSB.parseInt());
+    int n5 = (SerialUSB.parseInt());
+    int n6 = (SerialUSB.parseInt());
+    int n7 = (SerialUSB.parseInt());
+    int n8 = (SerialUSB.parseInt());
 
     if (SerialUSB.read() == '\n') {
       velBase = n1;
       velActuator_Lower = n2;
-      velActuator_Upper = n3;
+      velActuator_Upper = 4095*n3;
       velWrist_Horizontal = n4;
       velWrist_Vertical = n5;
-      velWrist_Rotation = n6;
-      velEffector_Angle = n7;
-      velEffector_Position = n8;
+      velWrist_Rotation = 4095*n6;
+      velEffector_Angle = 4095*n7;
+      velEffector_Position = 4095*n8;
     }
     digitalWrite( 1, HIGH );
     digitalWrite( 1, LOW );
