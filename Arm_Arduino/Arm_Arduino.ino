@@ -54,6 +54,9 @@ int posEffector_Angle = 0;   //max = 4500
 int16_t velEffector_Angle = 0;
 int posEffector_Position = 0; //4750
 int16_t velEffector_Position = 0;
+
+String data;
+int dir;
 /*
   ////////////////////////////// ROS CALLBACK ////////////////////////////////////////
 
@@ -102,7 +105,7 @@ void setup() {
     nh.initNode();
     nh.subscribe(arm_sub);
   */
-  SerialUSB.begin(57600);
+  SerialUSB.begin(2000000);
   SPI.begin();
   pinMode( ssBase, OUTPUT );
   pinMode( ssActuator_Lower, OUTPUT );
@@ -138,7 +141,8 @@ void loop() {
   posWrist_Rotation = spiTransfer(ssWrist_Rotate, velWrist_Rotation);
   posEffector_Angle = spiTransfer(ssEffector_Angle, velEffector_Angle);
   posEffector_Position = spiTransfer(ssEffector_Position, velEffector_Position);
-  /*
+
+    /*
     delay(1000);
     velBase = -velBase;
     velActuator_Lower = -velActuator_Lower;
@@ -159,8 +163,44 @@ void loop() {
     effector_position(posEffector_Position,ssEffector_Position);
     delay(100);*/
 
+   
+    pcControl();
+
   //nh.spinOnce();
-  spinOnce();
+  //spinOnce();
+}
+
+void pcControl()
+{
+  if (SerialUSB.available() > 0) {
+    data = SerialUSB.readStringUntil(',');
+    dir = SerialUSB.readStringUntil('\n').toInt();
+  }
+
+  if (data == "base"){
+    velBase = 4095*dir;
+  }
+  if (data == "actuator_lower"){
+    velActuator_Lower = 4095*dir;
+  }
+  if (data == "actuator_upper"){
+    velActuator_Upper = 4095*dir;
+  }
+  if (data == "wrist_horizontal"){
+    velWrist_Horizontal = 4095*dir;
+  }
+  if (data == "wrist_vertical"){
+    velWrist_Vertical = 4095*dir;
+  }
+  if (data == "wrist_rotate"){
+    velWrist_Rotation = 4095*dir;
+  }
+  if (data == "effector_angle"){
+    velEffector_Angle = 4095*dir;
+  }
+  if (data == "effector_position"){
+    velEffector_Position = 4095*dir;
+  }
 }
 
 void spinOnce()
