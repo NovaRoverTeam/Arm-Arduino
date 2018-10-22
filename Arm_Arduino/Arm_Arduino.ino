@@ -57,6 +57,8 @@ int16_t velEffector_Position = 0;
 
 String data;
 int dir;
+
+int count = 0;
 /*
   ////////////////////////////// ROS CALLBACK ////////////////////////////////////////
 
@@ -142,6 +144,23 @@ void loop() {
   posEffector_Angle = spiTransfer(ssEffector_Angle, velEffector_Angle);
   posEffector_Position = spiTransfer(ssEffector_Position, velEffector_Position);
 
+  SerialUSB.print(posBase);
+  SerialUSB.print('\t');
+  SerialUSB.print(posActuator_Lower);
+  SerialUSB.print('\t');
+  SerialUSB.print(posActuator_Upper);
+  SerialUSB.print('\t');
+  SerialUSB.print(posWrist_Horizontal);
+  SerialUSB.print('\t');
+  SerialUSB.print(posWrist_Vertical);
+  SerialUSB.print('\t');
+  SerialUSB.print(posWrist_Rotation);
+  SerialUSB.print('\t');
+  SerialUSB.print(posEffector_Angle);
+  SerialUSB.print('\t');
+  SerialUSB.print(posEffector_Position);
+  SerialUSB.print('\n');
+  count ++;
     /*
     delay(1000);
     velBase = -velBase;
@@ -178,7 +197,7 @@ void pcControl()
   }
 
   if (data == "base"){
-    velBase = 4095*dir;
+    velBase = 2048*dir;
   }
   if (data == "actuator_lower"){
     velActuator_Lower = 4095*dir;
