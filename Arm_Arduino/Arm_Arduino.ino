@@ -55,6 +55,7 @@ int16_t velWrist_Rotation = 0;
 int posEffector_Angle = 1000;   //max = 4500
 int16_t velEffector_Angle = -2048;
 int posEffector_Position = 1500; //4750
+double posEffector_Position_Measured;
 int16_t velEffector_Position = 0;
 
 String data;
@@ -109,8 +110,18 @@ void loop() {
   posWrist_Vertical = spiTransfer(ssWrist_Vertical, velWrist_Vertical);
   posWrist_Rotation = spiTransfer(ssWrist_Rotate, velWrist_Rotation);
   //posEffector_Angle = spiTransfer(ssEffector_Angle, velEffector_Angle);
-  //posEffector_Position = spiTransfer(ssEffector_Position, velEffector_Position);
+  posEffector_Position_Measured = spiTransfer(ssEffector_Position, velEffector_Position);
 
+  
+
+  
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  update_Endeffector_Angle();
+  effector_angle(posEffector_Angle, ssEffector_Angle);
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  //Pos = constrain((double)dir*0.01 + Pos,0, 55.72);
+    
   /*
   count = count+1;
   if (count == 1000){
@@ -124,11 +135,12 @@ void loop() {
  
   //SerialUSB.print(analogRead(A0));
   //SerialUSB.print( velEffector_Angle);
-  //SerialUSB.print("\t");
   
-  //SerialUSB.print(analogRead(A3));
+  SerialUSB.print(analogRead(A0));
+  SerialUSB.print("\t");
+  SerialUSB.print(analogRead(A3));
 
-  //effector_angle(posEffector_Angle, ssEffector_Angle);
+  
 
   //effector_position(posEffector_Position, ssEffector_Position);
 /*
@@ -170,6 +182,33 @@ void loop() {
    
   pcControl();
 
+  if (Pos >= 55.72 && velEffector_Position > 0){
+    velEffector_Position = 0;
+  }
+
+
+}
+
+void update_Endeffector_Angle()
+{
+  
+  beta = doublemap(posEffector_Position_Measured,0,994,135,153);
+
+  Pos = 12.5 + 61.78*cos(1.5707963267948966 - 0.017453292519943295*beta);
+
+  alpha = coefficient_list[round(Pos)][2] * pow((float)Ang/180*3.14159,2)+ coefficient_list[round(Pos)][1] * (float)Ang/180*3.14159+coefficient_list[round(Pos)][0];
+
+  alpha = alpha/3.14159*180;
+/*
+  SerialUSB.print("\t");
+  SerialUSB.print(round(Pos));
+
+  SerialUSB.print("\t");
+  SerialUSB.print(coefficient_list[round(Pos)][2]);
+*/
+  posEffector_Angle = round(doublemap(alpha,80,113,0,2564));
+  
+  
 }
 
 void update_Endeffector()
@@ -226,9 +265,13 @@ void pcControl()
     
   }
   if (data == "effector_position"){
-    Pos = constrain((double)dir*0.01 + Pos,0, 55.72);
 
-    update_Endeffector();
+    
+    velEffector_Position = 4095*dir;
+    
+    //Pos = constrain((double)dir*0.01 + Pos,0, 55.72);
+
+    //update_Endeffector_Angle();
 
   }
   if (data == "reset"){
@@ -417,8 +460,8 @@ void effector_angle(int set, int ss)
   }
 
 
-  SerialUSB.print("\t");
-  SerialUSB.print(position);
+  //SerialUSB.print("\t");
+  //SerialUSB.print(position);
   //SerialUSB.print("\t");
 }
 
@@ -428,14 +471,14 @@ void effector_position(int set, int ss)
 
   //SerialUSB.print("eP: \t");
   //SerialUSB.print(velEffector_Position);
-  position = spiTransfer(ss, velEffector_Position);
+  posEffector_Position_Measured = spiTransfer(ss, velEffector_Position);
 
-  speed = constrain(153.55 * (abs(set - position)) + 1024, 0, 4095);
-  if (position >   set + 10)
+  speed = constrain(153.55 * (abs(set - posEffector_Position_Measured)) + 1024, 0, 4095);
+  if (posEffector_Position_Measured >   set + 10)
   {
     velEffector_Position = speed;
   }
-  else if (position < set - 10)
+  else if (posEffector_Position_Measured < set - 10)
   {
     velEffector_Position = -speed;
   }
@@ -446,7 +489,7 @@ void effector_position(int set, int ss)
 
 
   SerialUSB.print("\t");
-  SerialUSB.print(position);
+  SerialUSB.print(posEffector_Position_Measured);
   //SerialUSB.println("\t");
 }
 uint16_t spiTransfer( int ss, int16_t Tx)
