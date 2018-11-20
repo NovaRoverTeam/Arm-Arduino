@@ -135,12 +135,12 @@ void loop() {
  
   //SerialUSB.print(analogRead(A0));
   //SerialUSB.print( velEffector_Angle);
-  
+  /*
   SerialUSB.print(analogRead(A0));
   SerialUSB.print("\t");
   SerialUSB.print(analogRead(A3));
 
-  
+  */
 
   //effector_position(posEffector_Position, ssEffector_Position);
 /*
@@ -150,8 +150,6 @@ void loop() {
   SerialUSB.print(alpha);
   SerialUSB.print("\t");
   SerialUSB.print(posEffector_Angle);
-
-
   SerialUSB.print("\t");
   SerialUSB.print(Pos);
   SerialUSB.print("\t");
@@ -202,7 +200,6 @@ void update_Endeffector_Angle()
 /*
   SerialUSB.print("\t");
   SerialUSB.print(round(Pos));
-
   SerialUSB.print("\t");
   SerialUSB.print(coefficient_list[round(Pos)][2]);
 */
@@ -223,7 +220,6 @@ void update_Endeffector()
 /*
   SerialUSB.print("\t");
   SerialUSB.print(round(Pos));
-
   SerialUSB.print("\t");
   SerialUSB.print(coefficient_list[round(Pos)][2]);
 */
@@ -445,7 +441,7 @@ void effector_angle(int set, int ss)
   
   position = spiTransfer(ss, velEffector_Angle);
 
-  speed = constrain(153.55 * (abs(set - position)) + 1024, 0, 4095);
+  speed = constrain(65 * (abs(set - position)) + 1024, 0, 4095);
   if (position >   set + 10)
   {
     velEffector_Angle = speed;
@@ -473,7 +469,7 @@ void effector_position(int set, int ss)
   //SerialUSB.print(velEffector_Position);
   posEffector_Position_Measured = spiTransfer(ss, velEffector_Position);
 
-  speed = constrain(153.55 * (abs(set - posEffector_Position_Measured)) + 1024, 0, 4095);
+  speed = constrain(65 * (abs(set - posEffector_Position_Measured)) + 1024, 0, 4095);
   if (posEffector_Position_Measured >   set + 10)
   {
     velEffector_Position = speed;
